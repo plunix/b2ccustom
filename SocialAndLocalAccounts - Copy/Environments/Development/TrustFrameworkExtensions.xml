@@ -4,12 +4,12 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
   PolicySchemaVersion="0.3.0.0" 
-  TenantId="{Settings:Tenant}" 
+  TenantId="almdevit.onmicrosoft.com" 
   PolicyId="B2C_1A_TrustFrameworkExtensions" 
-  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_TrustFrameworkExtensions">
+  PublicPolicyUri="http://almdevit.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
   
   <BasePolicy>
-    <TenantId>{Settings:Tenant}</TenantId>
+    <TenantId>almdevit.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkLocalization</PolicyId>
   </BasePolicy>
  <BuildingBlocks>
@@ -17,28 +17,13 @@
   </BuildingBlocks>
 
   <ClaimsProviders>
-    <ClaimsProvider>
-      <DisplayName>Local Account SignIn</DisplayName>
-      <TechnicalProfiles>
-         <TechnicalProfile Id="login-NonInteractive">
-          <Metadata>
-            <Item Key="client_id">{Settings:ProxyIdentityExperienceFrameworkAppId}</Item>
-            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFrameworkAppId}</Item>
-          </Metadata>
-          <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFrameworkAppId}" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFrameworkAppId}" />
-          </InputClaims>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
 
     <ClaimsProvider>
       <Domain>openam.sviluppo.local</Domain>
       <DisplayName>OpenAM SAML</DisplayName>
       <TechnicalProfiles>
         <TechnicalProfile Id="OpenAM-SAML2-Idp">
-          <DisplayName>ADFS</DisplayName>
+          <DisplayName>Contoso</DisplayName>
           <Description>Login with your SAML identity provider account</Description>
           <Protocol Name="SAML2"/>
           <Metadata>
@@ -51,19 +36,17 @@
             <Item Key="NameIdPolicyFormat">urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</Item>
              <Item Key="NameIdPolicyAllowCreate">true</Item>
              <Item Key="IncludeAuthnContextClassReferences">urn:oasis:names:tc:SAML:2.0:ac:classes:Password,urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</Item>
+             <Item Key="WantsSignedAssertions">false</Item>
              <Item Key="ResponsesSigned">false</Item>
              <Item Key="WantsEncryptedAssertions">false</Item>
              <Item Key="SingleLogoutEnabled">false</Item>
           </Metadata>
-          <CryptographicKeys>
-            <Key Id="SamlMessageSigning" StorageReferenceId="B2C_1A_SAMLSigningCert"/>
-          </CryptographicKeys>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="userPrincipalName" />
-            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="given_name"/>
-            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="family_name"/>
-            <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email"/>
-            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name"/>
+            <OutputClaim ClaimTypeReferenceId="issuerUserId" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn" />
+            <OutputClaim ClaimTypeReferenceId="givenName" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" />
+            <OutputClaim ClaimTypeReferenceId="surname" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" />
+            <OutputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" />
+            <OutputClaim ClaimTypeReferenceId="email"  PartnerClaimType="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" />
             <OutputClaim ClaimTypeReferenceId="identityProvider" DefaultValue="openam.sviluppo.local" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="samlIdpAuthentication" />
           </OutputClaims>
@@ -73,117 +56,14 @@
             <OutputClaimsTransformation ReferenceId="CreateAlternativeSecurityId"/>
             <OutputClaimsTransformation ReferenceId="CreateSubjectClaimFromAlternativeSecurityId"/>
           </OutputClaimsTransformations>
-          <UseTechnicalProfileForSessionManagement ReferenceId="SM-Saml-idp"/>
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
 
-    <ClaimsProvider>
-      <DisplayName>Session Management</DisplayName>
-      <TechnicalProfiles>
-        <TechnicalProfile Id="SM-Saml-idp">
-          <DisplayName>Session Management Provider</DisplayName>
-          <Protocol Name="Proprietary" Handler="Web.TPEngine.SSO.SamlSSOSessionProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Metadata>
-            <Item Key="IncludeSessionIndex">false</Item>
-            <Item Key="RegisterServiceProviders">false</Item>
-          </Metadata>
-        </TechnicalProfile>
-      </TechnicalProfiles>
-    </ClaimsProvider>
   </ClaimsProviders>
 
-    <UserJourneys>
-      <UserJourney Id="ADFSSignUpSignIn">
-        <OrchestrationSteps>
-  
-          <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
-            <ClaimsProviderSelections>
-              <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
-              <ClaimsProviderSelection TargetClaimsExchangeId="ADFSExchange" />
-            </ClaimsProviderSelections>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-  
-          <!-- Check if the user has selected to sign in using one of the social providers -->
-          <OrchestrationStep Order="2" Type="ClaimsExchange">
-            <Preconditions>
-              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-                <Value>objectId</Value>
-                <Action>SkipThisOrchestrationStep</Action>
-              </Precondition>
-            </Preconditions>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
-              <ClaimsExchange Id="ADFSExchange" TechnicalProfileReferenceId="OpenAM-SAML2-Idp" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-  
-          <!-- For social IDP authentication, attempt to find the user account in the directory. -->
-          <OrchestrationStep Order="3" Type="ClaimsExchange">
-            <Preconditions>
-              <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                <Value>authenticationSource</Value>
-                <Value>localAccountAuthentication</Value>
-                <Action>SkipThisOrchestrationStep</Action>
-              </Precondition>
-            </Preconditions>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="AADUserReadUsingAlternativeSecurityId" TechnicalProfileReferenceId="AAD-UserReadUsingAlternativeSecurityId-NoError" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-  
-          <!-- Show self-asserted page only if the directory does not have the user account already (i.e. we do not have an objectId). 
-            This can only happen when authentication happened using a social IDP. If local account was created or authentication done
-            using ESTS in step 2, then an user account must exist in the directory by this time. -->
-          <OrchestrationStep Order="4" Type="ClaimsExchange">
-            <Preconditions>
-              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-                <Value>objectId</Value>
-                <Action>SkipThisOrchestrationStep</Action>
-              </Precondition>
-            </Preconditions>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="SelfAsserted-Social" TechnicalProfileReferenceId="SelfAsserted-Social" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-  
-          <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent 
-            in the token. -->
-          <OrchestrationStep Order="5" Type="ClaimsExchange">
-            <Preconditions>
-              <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-                <Value>authenticationSource</Value>
-                <Value>socialIdpAuthentication</Value>
-                <Action>SkipThisOrchestrationStep</Action>
-              </Precondition>
-            </Preconditions>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-          <!-- The previous step (SelfAsserted-Social) could have been skipped if there were no attributes to collect 
-               from the user. So, in that case, create the user in the directory if one does not already exist 
-               (verified using objectId which would be set from the last step if account was created in the directory. -->
-          <OrchestrationStep Order="6" Type="ClaimsExchange">
-            <Preconditions>
-              <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-                <Value>objectId</Value>
-                <Action>SkipThisOrchestrationStep</Action>
-              </Precondition>
-            </Preconditions>
-            <ClaimsExchanges>
-              <ClaimsExchange Id="AADUserWrite" TechnicalProfileReferenceId="AAD-UserWriteUsingAlternativeSecurityId" />
-            </ClaimsExchanges>
-          </OrchestrationStep>
-  
-          <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-  
-        </OrchestrationSteps>
-        <ClientDefinition ReferenceId="DefaultWeb" />
-      </UserJourney>
-	</UserJourneys>
+    <!--UserJourneys>
+	
+	</UserJourneys-->
 
 </TrustFrameworkPolicy>

@@ -5,8 +5,8 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
   PolicySchemaVersion="0.3.0.0"
   TenantId="{Settings:Tenant}"
-  PolicyId="B2C_1A_PasswordReset"
-  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_PasswordReset">
+  PolicyId="B2C_1A_ProfileEdit"
+  PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_ProfileEdit">
 
   <BasePolicy>
     <TenantId>{Settings:Tenant}</TenantId>
@@ -14,12 +14,11 @@
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="PasswordReset" />
+    <DefaultUserJourney ReferenceId="ProfileEdit" />
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
